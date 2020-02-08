@@ -1,0 +1,86 @@
+Flink对接HBase
+    HBase NoSQL
+    对接：读  写
+    官网上并没有显示的告诉我们以优雅的姿势进行HBase数据的读写操作
+
+HBase
+    Google三驾马车：GFS/MapReduce/Bigtable
+
+
+HBase部署
+    1）去CDH下载页面找到我们Hadoop 尾号对应的HBase的安装包
+    2）解压到~/app
+    3）配置环境变量
+    4）修改配置文件 $HBASE_HOME/conf
+        hbase-env.sh
+            export JAVA_HOME=/home/hadoop/app/jdk1.8.0_91
+            export HBASE_MANAGES_ZK=false
+            事先部署一个ZK
+
+        hbase-site.xml
+            <property>
+                    <name>hbase.rootdir</name>
+                    <value>hdfs://hadoop000:8020/hbase</value>
+            </property>
+
+            <property>
+                    <name>hbase.cluster.distributed</name>
+                    <value>true</value>
+            </property>
+
+            <property>
+                    <name>hbase.zookeeper.quorum</name>
+                    <value>hadoop000:2181,hadoop001:2181,hadoop002:2181</value>
+            </property>
+
+            <property>
+                <name>zookeeper.znode.parent</name>
+                <value>/hbase</value>
+            </property>
+
+        regionservers
+            hadoop000
+     5）启动HBase
+        $HBASE_HOME/bin/start-hbase.sh
+     6）检查是否启动成功
+        HRegionServer
+        HMaster
+     7）客户端
+        $HBASE_HOME/bin/hbase shell
+
+
+Flink读取HBase的数据
+    Source：MySQL
+        RichSourceFunction 增强的SourceFunction
+            自带了生命周期方法
+            open：获取Connection
+            close：关闭Connection
+    Sink：MySQL
+        RichSinkFunction 增添的SinkFunction
+            同Source的实现
+
+
+Flink整合Hadoop需要的依赖
+<dependency>
+    <groupId>org.apache.flink</groupId>
+    <artifactId>flink-hadoop-compatibility_2.11</artifactId>
+    <version>${flink.version}</version>
+</dependency>
+
+思考：应该pom里面还需要一个Flink整合HBase的依赖
+
+maven常用的网站：https://mvnrepository.com/
+<dependency>
+    <groupId>org.apache.flink</groupId>
+    <artifactId>flink-hbase_2.11</artifactId>
+    <version>${flink.version}</version>
+</dependency>
+
+
+
+
+
+
+
+
+
